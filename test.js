@@ -4,11 +4,13 @@
 // document.querySelectorAll('div.WallItem div.NotificationBody a:nth-child(2)')
 
 
-const wait = require('./util/wait')
+const { wait, scrollDownToBottom } = require('./util/helper')
 
 const config = require('./config/config.json')
 
 const db = require('./config/mongoose')
+
+const TwitchUsers = require('./models/twitchUsers')
 
 const puppeteer = require('puppeteer-core');
 
@@ -17,15 +19,23 @@ const puppeteer = require('puppeteer-core');
   const browser = await puppeteer.launch(config.setting);
   const page = await browser.newPage();
 
-  await page.goto(config.url.twitch);
+  await page.goto(config.url.twitch, { waitUntil: 'networkidle0' });
+
+  await scrollDownToBottom(page)
 
   await wait(1000)
 
-  const users = await page.evaluate(test => {
+  const users = await page.evaluate(_ => {
     const data = Array.from(document.querySelectorAll('a[data-a-target="preview-card-title-link"]'))
     return data.map(e => e.pathname.substring(1))
   })
-  console.log(users)
+
+  console.log(users.length)
+  users.forEach(async (user) => {
+    const status = await TwitchUsers.findOne({ userName: user })
+    if (status) console.log(status)
+  })
+
   await browser.close();
   await db.close()
 })();
