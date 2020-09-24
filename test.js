@@ -3,6 +3,11 @@
 // userDataDir：紀錄登入資訊
 // document.querySelectorAll('div.WallItem div.NotificationBody a:nth-child(2)')
 
+// 等一下
+function wait(ms) {
+  return new Promise(resolve => setTimeout(() => resolve(), ms))
+}
+
 const config = {
   setting: {
     executablePath:
@@ -40,14 +45,15 @@ const puppeteer = require('puppeteer-core');
 
   await page.goto(config.url.twitch);
 
-  await page.waitFor(1000)
+  await wait(1000)
 
   const users = await page.evaluate(test => {
     const data = Array.from(document.querySelectorAll('a[data-a-target="preview-card-title-link"]'))
     return data.map(e => e.pathname.substring(1))
   })
-  
+
   await browser.close();
+  await db.close()
 })();
 
 
