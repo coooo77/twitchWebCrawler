@@ -25,15 +25,15 @@ const puppeteer = require('puppeteer-core');
 
   await wait(1000)
 
-  const users = await page.evaluate(_ => {
+  const streamers = await page.evaluate(_ => {
     const data = Array.from(document.querySelectorAll('a[data-a-target="preview-card-title-link"]'))
     return data.map(e => e.pathname.substring(1))
   })
 
-  console.log(users.length)
-  users.forEach(async (user) => {
-    const status = await TwitchUsers.findOne({ userName: user })
-    if (status) console.log(status)
+  console.log(streamers.length)
+  streamers.forEach(async (streamer) => {
+    const user = await TwitchUsers.findOne({ userName: streamer })
+    if (user) console.log(user)
   })
 
   await browser.close();
