@@ -12,8 +12,8 @@ const fs = require('fs')
 const config = require('./config/config.json')
 
 const db = require('./config/mongoose')
-
 const TwitchUsers = require('./models/twitchUsers')
+const StreamingUsers = require('./models/streamingUsers')
 
 const puppeteer = require('puppeteer-core');
 
@@ -33,23 +33,45 @@ const puppeteer = require('puppeteer-core');
     return data.map(e => e.pathname.substring(1))
   })
 
+  // 檢查是否有實況主下線，是的話把isRecording改為false
+  console.log('\n[System] status check')
+  const streamingUsers = await StreamingUsers.find()
+  const streamingUsersList = streamingUsers.map(user => user.userName)
+  streamingUsersList.forEach(async (streamer) => {
+    console.log(`Check ${streamer}'s streaming status`)
+    if (!streamers.includes(streamer)) {
+      console.log(`${streamer} is offline, start to close recording`)
+      const user = await TwitchUsers.findOne({ userName: streamer })
+      user.isRecording = false
+      await user.save()
+
+      const streamingUser = await StreamingUsers.findOne({ userName: streamer })
+      await streamingUser.remove()
+    } else {
+      console.log(`${streamer} is still streaming`)
+    }
+  })
+
+  // 開始檢查現在實況主中是否有想要錄製的對象，有的話就開始錄影
+  console.log('[System] Start to Record')
   streamers.forEach(async (streamer) => {
     const user = await TwitchUsers.findOne({ userName: streamer })
     if (user && !user.isRecording) {
       console.log(`${user.userName} is streaming`)
-      // user.isRecording = true
-      // await user.save()
+
+      // 開始錄製，更改狀態
+      user.isRecording = true
+      await user.save()
+
+      // 更新正在實況的實況主清單
+      const newStreamingUser = new StreamingUsers({ userName: streamer })
+      await newStreamingUser.save()
 
       // TODO：將bat內容改成執行20後關閉
-      recordStream(fs, cp, user.userName, __dirname)
+      await recordStream(fs, cp, user.userName, __dirname)
     }
   })
 
   await browser.close();
   await db.close()
 })();
-
-
-// const data = Array.from(document.querySelectorAll('a[data-a-target="preview-card-title-link"]'))
-
-// const users = data.map(e => e.pathname.substring(1))

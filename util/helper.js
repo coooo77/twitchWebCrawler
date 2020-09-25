@@ -27,7 +27,7 @@ const helper = {
     set hour=%time:~0,2%
     if "%hour:~0,1%" == " " set hour=0%hour:~1,1%
     set name=${name}
-    streamlink --twitch-disable-hosting https://www.twitch.tv/%name% best -o D:\JD\%name%_twitch_%DATE%_%hour%%time:~3,2%%time:~6,2%.mp4
+    streamlink --twitch-disable-hosting https://www.twitch.tv/%name% best -o D://JD\\%name%_twitch_%DATE%_%hour%%time:~3,2%%time:~6,2%.mp4
     timeout /t 30
     goto loop
     `
@@ -42,20 +42,23 @@ const helper = {
 
       if (err) {
         console.log(`create ${userName}.bat`)
-        fs.writeFile(`./recorder/${userName}.bat`, helper.recorderMaker(userName), (err) => {
-          console.log(err);
+        fs.writeFile(`./recorder/${userName}.bat`, helper.recorderMaker(userName), (error) => {
+          console.log(error);
         })
       }
 
       console.log(`start to record streamer ${userName}`)
-      cp.exec('start ' + dirName + `\\recorder\\${userName}.bat`, (error, stdout, stderr) => {
+
+      // console.log('commands', commands)
+      const commands = cp.exec('start ' + dirName + `\\recorder\\${userName}.bat`, (error, stdout, stderr) => {
         if (error) {
           console.log(`Name: ${error.name}\nMessage: ${error.message}\nStack: ${error.stack}`)
-        } else {
-          console.log(stdout)
         }
       })
-
+      process.on('exit', function () {
+        console.log(`${userName}'s record process killed`)
+        commands.kill()
+      })
     })
   }
 }
