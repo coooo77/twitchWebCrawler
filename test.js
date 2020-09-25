@@ -18,7 +18,7 @@ const StreamingUsers = require('./models/streamingUsers')
 const puppeteer = require('puppeteer-core');
 
 
-(async () => {
+const test = async () => {
   const browser = await puppeteer.launch(config.setting);
   const page = await browser.newPage();
 
@@ -73,5 +73,8 @@ const puppeteer = require('puppeteer-core');
   })
 
   await browser.close();
-  await db.close()
-})();
+  // 不能關閉資料庫，不然每次監控都要重開
+  // await db.close()
+}
+
+module.exports = test
