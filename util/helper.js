@@ -20,6 +20,43 @@ const helper = {
       await helper.wait(20)
       viewportIncr = viewportIncr + viewportHeight
     }
+  },
+  recorderMaker(name) {
+    return `
+    :loop
+    set hour=%time:~0,2%
+    if "%hour:~0,1%" == " " set hour=0%hour:~1,1%
+    set name=${name}
+    streamlink --twitch-disable-hosting https://www.twitch.tv/%name% best -o D:\JD\%name%_twitch_%DATE%_%hour%%time:~3,2%%time:~6,2%.mp4
+    timeout /t 30
+    goto loop
+    `
+  },
+  recordStream(fs, cp, userName, dirName) {
+    // 檢查是否有錄製的bat檔案
+    // 有的話以cp執行 TODO：將bat內容改成執行20後關閉
+    // 沒有就以fs製作一個bat類型錄製檔案，接著執行cp
+    fs.access(`./recorder/${userName}.bat`, fs.constants.F_OK, (err) => {
+
+      console.log(`file ${userName}.bat ${err ? 'does not exist' : 'exists'}`)
+
+      if (err) {
+        console.log(`create ${userName}.bat`)
+        fs.writeFile(`./recorder/${userName}.bat`, helper.recorderMaker(userName), (err) => {
+          console.log(err);
+        })
+      }
+
+      console.log(`start to record streamer ${userName}`)
+      cp.exec('start ' + dirName + `\\recorder\\${userName}.bat`, (error, stdout, stderr) => {
+        if (error) {
+          console.log(`Name: ${error.name}\nMessage: ${error.message}\nStack: ${error.stack}`)
+        } else {
+          console.log(stdout)
+        }
+      })
+
+    })
   }
 }
 

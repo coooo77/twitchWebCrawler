@@ -4,7 +4,10 @@
 // document.querySelectorAll('div.WallItem div.NotificationBody a:nth-child(2)')
 
 
-const { wait, scrollDownToBottom } = require('./util/helper')
+const { wait, scrollDownToBottom, recordStream } = require('./util/helper')
+
+const cp = require('child_process')
+const fs = require('fs')
 
 const config = require('./config/config.json')
 
@@ -30,10 +33,16 @@ const puppeteer = require('puppeteer-core');
     return data.map(e => e.pathname.substring(1))
   })
 
-  console.log(streamers.length)
   streamers.forEach(async (streamer) => {
     const user = await TwitchUsers.findOne({ userName: streamer })
-    if (user) console.log(user)
+    if (user && !user.isRecording) {
+      console.log(`${user.userName} is streaming`)
+      // user.isRecording = true
+      // await user.save()
+
+      // TODO：將bat內容改成執行20後關閉
+      recordStream(fs, cp, user.userName, __dirname)
+    }
   })
 
   await browser.close();
