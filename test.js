@@ -36,21 +36,25 @@ const test = async () => {
   // 檢查是否有實況主下線，是的話把isRecording改為false
   console.log('\n[System] status check')
   const streamingUsers = await StreamingUsers.find()
-  const streamingUsersList = streamingUsers.map(user => user.userName)
-  streamingUsersList.forEach(async (streamer) => {
-    console.log(`Check ${streamer}'s streaming status`)
-    if (!streamers.includes(streamer)) {
-      console.log(`${streamer} is offline, start to close recording`)
-      const user = await TwitchUsers.findOne({ userName: streamer })
-      user.isRecording = false
-      await user.save()
+  if (streamingUsers.length !== 0) {
+    const streamingUsersList = streamingUsers.map(user => user.userName)
+    streamingUsersList.forEach(async (streamer) => {
+      console.log(`Check ${streamer}'s streaming status`)
+      if (!streamers.includes(streamer)) {
+        console.log(`${streamer} is offline, start to close recording`)
+        const user = await TwitchUsers.findOne({ userName: streamer })
+        user.isRecording = false
+        await user.save()
 
-      const streamingUser = await StreamingUsers.findOne({ userName: streamer })
-      await streamingUser.remove()
-    } else {
-      console.log(`${streamer} is still streaming`)
-    }
-  })
+        const streamingUser = await StreamingUsers.findOne({ userName: streamer })
+        await streamingUser.remove()
+      } else {
+        console.log(`${streamer} is still streaming`)
+      }
+    })
+  } else {
+    console.log('No target user streaming')
+  }
 
   // 開始檢查現在實況主中是否有想要錄製的對象，有的話就開始錄影
   console.log('[System] Start to Record')
