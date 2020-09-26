@@ -15,11 +15,9 @@ const db = require('./config/mongoose')
 const TwitchUsers = require('./models/twitchUsers')
 const StreamingUsers = require('./models/streamingUsers')
 
-const puppeteer = require('puppeteer-core');
 
+const test = async (browser) => {
 
-const test = async () => {
-  const browser = await puppeteer.launch(config.setting);
   const page = await browser.newPage();
 
   await page.goto(config.url.twitch, { waitUntil: 'networkidle0' });
@@ -75,8 +73,8 @@ const test = async () => {
       await recordStream(fs, cp, user.userName, __dirname)
     }
   })
-
-  await browser.close();
+  await wait(1000)
+  await page.close();
   // 不能關閉資料庫，不然每次監控都要重開
   // await db.close()
 }

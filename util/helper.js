@@ -23,12 +23,17 @@ const helper = {
   },
   recorderMaker(name) {
     return `
+    @echo off
+    set name=${name}
+    set count=0
     :loop
     set hour=%time:~0,2%
     if "%hour:~0,1%" == " " set hour=0%hour:~1,1%
-    set name=${name}
+    set /a count+=1
+    echo [CountDown] Loop for 60 times, try %count% times ... 
     streamlink --twitch-disable-hosting https://www.twitch.tv/%name% best -o D://JD\\%name%_twitch_%DATE%_%hour%%time:~3,2%%time:~6,2%.mp4
-    timeout /t 30
+    if "%count%" == "60" exit 
+    timeout /t 30    
     goto loop
     `
   },
