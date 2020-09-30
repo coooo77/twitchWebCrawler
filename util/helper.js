@@ -32,8 +32,9 @@ const helper = {
     set /a count+=1
     echo [CountDown] Loop for 60 times, try %count% times ... 
     streamlink --twitch-disable-hosting https://www.twitch.tv/%name% best -o D://JD\\%name%_twitch_%DATE%_%hour%%time:~3,2%%time:~6,2%.mp4
-    if "%count%" == "60" exit 
-    timeout /t 30    
+    if "%count%" == "60" exit
+    echo [CountDown] count down for 30 sec...
+    @ping 127.0.0.1 -n 30 -w 1000 > nul
     goto loop
     `
   },
@@ -69,3 +70,7 @@ const helper = {
 }
 
 module.exports = helper
+
+// recorder 的 cp、fs 不用傳入，可以直接飲用
+// 似乎建造bat時程序沒有關掉 所以會卡住
+// 小bug：開始實況或網路中斷錄影時會重新錄影
