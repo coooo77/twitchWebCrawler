@@ -3,3 +3,4 @@ userData/
 recorder/
 .gitignore
 models/seeds/*.json
+debug.log
