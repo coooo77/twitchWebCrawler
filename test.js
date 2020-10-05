@@ -21,8 +21,9 @@ const test = async (browser) => {
   try {
     await page.goto(config.url.twitch, { waitUntil: 'networkidle0' })
     await scrollDownToBottom(page)
-    await wait(1000)
-
+    await wait(500)
+    await scrollDownToBottom(page)
+    await wait(500)
     const streamers = await page.evaluate(_ => {
       const data = Array.from(document.querySelectorAll('a[data-a-target="preview-card-title-link"]'))
       return data.map(e => e.pathname.substring(1))
