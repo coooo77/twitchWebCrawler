@@ -35,7 +35,7 @@ const test = async (browser) => {
     if (streamingUsers.length !== 0) {
       const streamingUsersList = streamingUsers.map(user => user.userName)
       streamingUsersList.forEach(async (streamer) => {
-        console.log(`Check ${streamer}'s streaming status`)
+        // console.log(`Check ${streamer}'s streaming status`)
         if (!streamers.includes(streamer)) {
           console.log(`${streamer} is offline, start to close recording`)
           const user = await TwitchUsers.findOne({ userName: streamer })
